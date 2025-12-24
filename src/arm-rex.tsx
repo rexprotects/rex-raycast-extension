@@ -1,16 +1,21 @@
 import { showToast, Toast, closeMainWindow, showHUD } from "@raycast/api";
 import { runAppleScript } from "@raycast/utils";
 
+interface ExecError extends Error {
+  stdout?: Buffer | string;
+  stderr?: Buffer | string;
+  status?: number;
+}
+
 export default async function Command() {
   try {
     console.log("Starting Arm Rex command...");
     await closeMainWindow();
 
     console.log("Executing Rex AppleScript: arm");
-    const result = await runAppleScript<string>(
-      `tell application id "com.sorrenogroup.rex" to «event RexxArms»`,
-      { timeout: 30000 },
-    );
+    const result = await runAppleScript<string>(`tell application id "com.sorrenogroup.rex" to «event RexxArms»`, {
+      timeout: 30000,
+    });
 
     console.log("AppleScript result:", result);
 
@@ -41,7 +46,7 @@ export default async function Command() {
     console.error("Error arming Rex:", error);
 
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const execError = error as any;
+    const execError = error as ExecError;
 
     console.error("Error details:", {
       message: errorMessage,
